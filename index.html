@@ -79,6 +79,23 @@
     .divbg {
         background: #fffffa;
     }
+
+    pre {
+   background-color: ghostwhite;
+   border: 1px solid silver;
+   padding: 10px 20px;
+   margin: 20px; 
+   }
+.json-key {
+   color: #cb0369;
+   }
+.json-value {
+   color: #f74d5c;
+   }
+.json-string {
+   color: #0e93bb;
+   }
+
 </style>
 
 <body class="bg">
@@ -123,7 +140,7 @@
     </div>
     <div class="divbg">
         <div class="window">
-            <textarea id="code" name="code" placeholder="Paste your JSON Web Token here..">
+            <textarea id="code" name="code" placeholder="">
 
     </textarea>
            
@@ -134,7 +151,7 @@
                         <!-- <span>Algoritm si Tip Token</span> -->
                     </div>
                     <div class="typographyResult">
-                        <pre id='json-header' class="typographyResult"></pre>
+                        <pre id='json-header' style="display: none;" class="typographyResult"></pre>
                     </div>
                 </div>
                 <div class="typographyResult">
@@ -143,14 +160,14 @@
                         <!-- <span>Data</span> -->
                     </div>
                     <div class="typographyResult">
-                        <pre id='json-payload' class="typographyResult"></pre>
+                        <pre id='json-payload' style="display: none;" class="typographyResult"></pre>
                     </div>
                 </div>
             </div>
             <div align="center">
                 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
                 <!-- poopcodesidebar -->
-                <ins class="adsbygoogle" style="display:inline-block;width:970px;height:90px" data-ad-client="ca-pub-3194348739260514"
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3194348739260514"
                     data-ad-slot="2142264606" data-ad-format="auto" data-full-width-responsive="true"></ins>
                 <script>
                     (adsbygoogle = window.adsbygoogle || []).push({});
@@ -244,9 +261,11 @@
                 payloadTitle.style.color = "#3a3a3a";
 
                 header.style.color = "#3a3a3a";
-                header.textContent = JSON.stringify(tokenDecodedHeader, undefined, 2);
+                header.style.display = "block";
+                header.innerHTML = library.json.prettyPrint(tokenDecodedHeader);
 
                 payload.style.color = "#3a3a3a";
+                payload.style.display = "block";
 
                 if (tokenDecodedPayload.nbf)
                     tokenDecodedPayload.nbf = tokenDecodedPayload.nbf + "  => " + new Date(parseInt(tokenDecodedPayload.nbf) * 1000).toString() + "";
@@ -255,7 +274,7 @@
                 if (tokenDecodedPayload.iat)
                     tokenDecodedPayload.iat = tokenDecodedPayload.iat + "  => " + new Date(parseInt(tokenDecodedPayload.iat) * 1000).toString() + "";
 
-                payload.textContent = JSON.stringify(tokenDecodedPayload, undefined, 2);
+                payload.innerHTML = library.json.prettyPrint(tokenDecodedPayload);
 
 
                 // msg.style.color = "#3a3a3a";
@@ -263,12 +282,38 @@
             } catch (err) {
                 payloadTitle.textContent = "";
                 headerTitle.textContent = "";
+                header.style.display = "block";
                 header.style.color = "RED";
                 header.textContent = "Invalid JSON Web Token!"
                 payload.textContent = "";
+                payload.style.display = "none";
 
             }
         }
+
+        if (!library)
+   var library = {};
+
+library.json = {
+   replacer: function(match, pIndent, pKey, pVal, pEnd) {
+      var key = '<span class=json-key>';
+      var val = '<span class=json-value>';
+      var str = '<span class=json-string>';
+      var r = pIndent || '';
+      if (pKey)
+         r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+      if (pVal)
+         r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+      return r + (pEnd || '');
+      },
+   prettyPrint: function(obj) {
+      var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+      return JSON.stringify(obj, null, 3)
+         .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+         .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+         .replace(jsonLine, library.json.replacer);
+      }
+   };
 
     </script>
 </body>
